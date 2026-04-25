@@ -1,25 +1,25 @@
-# 🛠️ Panduan Instalasi & Kolaborasi (Untuk Tim)
+# 🛠️ Panduan Instalasi & Setup Lingkungan
 
-Dokumentasi ini ditujukan bagi anggota tim yang ingin menjalankan atau mengembangkan layanan **DiaBeat API** di lingkungan lokal masing-masing.
+Dokumentasi ini memberikan instruksi langkah-demi-langkah bagi pengembang yang ingin menjalankan atau berkontribusi pada layanan **DiaBeat API** di lingkungan lokal.
 
 ## 📋 Prasyarat
-Sebelum memulai, pastikan kamu sudah menginstal:
-* **Python 3.11 atau 3.12** (Sangat disarankan untuk menghindari konflik library TensorFlow).
-* **Git** (Untuk mengelola kode).
+Sebelum memulai, pastikan sistem Anda sudah terinstal:
+* **Python 3.11 atau 3.12** (Sangat disarankan untuk kompatibilitas optimal TensorFlow).
+* **Git** (Untuk manajemen versi kode).
 
 ---
 
-## 🚀 Langkah-Langkah Setup
+## 🚀 Langkah-Langkah Instalasi
 
-### 1. Ambil Kode dari GitHub
-Buka terminal/command prompt, arahkan ke folder kerjamu, lalu jalankan:
+### 1. Kloning Repositori
+Buka terminal atau command prompt, navigasikan ke direktori kerja Anda, lalu jalankan:
 ```bash
-git clone [https://github.com/timbubadibako/DiaBeat-API.git](https://github.com/timbubadibako/DiaBeat-API.git)
+git clone [https://github.com/username/DiaBeat-API.git](https://github.com/username/DiaBeat-API.git)
 cd DiaBeat-API
 ```
 
-### 2. Membuat Virtual Environment (venv)
-Sangat penting untuk menggunakan `venv` agar versi Python dan library tidak berantakan dengan proyek lain di laptopmu.
+### 2. Konfigurasi Lingkungan Virtual (Virtual Environment)
+Disarankan menggunakan `venv` untuk menjaga isolasi dependensi agar tidak berbenturan dengan proyek lain.
 
 **Windows:**
 ```powershell
@@ -32,34 +32,36 @@ python -m venv venv
 python3 -m venv venv
 source venv/bin/activate
 ```
-*Tanda berhasil: Muncul tulisan `(venv)` di sebelah kiri prompt terminalmu.*
+*Catatan: Jika berhasil, indikator `(venv)` akan muncul di sebelah kiri prompt terminal Anda.*
 
-### 3. Instalasi Library (Dependensi)
-Semua library yang dibutuhkan (FastAPI, TensorFlow, dll) sudah didaftarkan di dalam `requirements.txt`. Kamu hanya perlu menjalankan satu perintah:
+### 3. Instalasi Dependensi
+Instal semua pustaka yang diperlukan (FastAPI, TensorFlow, Scikit-Learn, dll.) melalui file `requirements.txt`:
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 4. Menjalankan Server API
-Setelah semua library terinstal, nyalakan server dengan perintah:
+Layanan ini sudah dikonfigurasi untuk berjalan langsung melalui entry point `main.py`. Jalankan perintah berikut:
 ```bash
-uvicorn main:app --reload
+python main.py
 ```
-Server akan berjalan di: `http://127.0.0.1:8000`
+Server akan aktif di: `http://localhost:8000`
 
 ---
 
-## 🧪 Cara Mengetes API Secara Mandiri
-1. Buka browser dan akses: `http://127.0.0.1:8000/docs`.
-2. Kamu akan masuk ke **Swagger UI**.
-3. Cari rute **POST /predict**, klik **Try it out**.
-4. Masukkan data JSON contoh, lalu klik **Execute**.
-5. Jika muncul respon JSON berisi `risk_score`, berarti setup kamu sudah berhasil!
+## 🧪 Pengujian API (Interactive Docs)
+Proyek ini dilengkapi dengan dokumentasi interaktif otomatis. Untuk melakukan pengujian tanpa alat tambahan (seperti Postman):
+
+1. Buka browser dan akses: `http://localhost:8000/docs`.
+2. Anda akan diarahkan ke halaman **Swagger UI**.
+3. Temukan rute **POST /predict**, lalu klik tombol **"Try it out"**.
+4. Gunakan contoh payload JSON yang tersedia, lalu klik **"Execute"**.
+5. Jika API mengembalikan respon berupa `prediction` dan `probability`, berarti instalasi Anda sukses!
 
 ---
 
-## 🤝 Alur Kontribusi (Git Workflow)
-Jika kamu melakukan perubahan kode:
-1. Pastikan selalu lakukan `git pull origin main` sebelum mulai bekerja.
-2. Buat branch baru jika ingin menambah fitur: `git checkout -b fitur-baru-kamu`.
-3. Setelah selesai, lakukan `commit` dan `push`.
+## 🤝 Alur Kerja Pengembangan (Git Workflow)
+Bagi Anda yang ingin berkontribusi, harap ikuti alur berikut:
+1. Lakukan pembaruan kode lokal dengan `git pull origin main`.
+2. Gunakan branch baru untuk fitur atau perbaikan: `git checkout -b nama-fitur`.
+3. Lakukan pengujian lokal sebelum melakukan `commit` dan `push` kembali ke repositori.

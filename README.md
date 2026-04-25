@@ -1,26 +1,30 @@
-# DiaBeat-API : Diabetes Risk Prediction Service
+# 🩺 DiaBeat-API: Diabetes Risk Prediction Service
 
-DiaBeat adalah layanan berbasis Kecerdasan Buatan (AI) yang dirancang untuk mendeteksi risiko diabetes secara dini. Proyek ini menggunakan arsitektur **Deep Learning** yang dideploy sebagai RESTful API untuk kebutuhan integrasi aplikasi kesehatan.
+Ini adalah RESTful API sistem DiaBeat berbasis Kecerdasan Buatan (AI) yang dirancang untuk mendeteksi risiko diabetes secara dini. Proyek ini mengintegrasikan model **Deep Learning** (TensorFlow Functional API) dengan **FastAPI** untuk menyediakan layanan prediksi yang cepat, akurat, dan mudah diintegrasikan ke berbagai platform kesehatan.
 
 ## 🚀 Fitur Utama
-- **Deep Learning Model**: Dibangun menggunakan TensorFlow Functional API.
-- **Custom Optimization**: Implementasi Custom Callback untuk efisiensi training.
-- **FastAPI Framework**: Layanan API asinkron dengan performa tinggi.
-- **Automated Scaling**: Integrasi `StandardScaler` untuk akurasi prediksi yang konsisten.
+- **AI-Powered Prediction**: Menggunakan model Deep Learning yang dilatih dengan teknik optimasi tingkat lanjut.
+- **Pre-processing Terintegrasi**: Menggunakan `StandardScaler` yang dipaketkan untuk memastikan data input selalu sesuai dengan skala standar model.
+- **Dokumentasi Interaktif**: Dilengkapi dengan Swagger UI untuk pengujian endpoint secara real-time.
+- **Skalabilitas**: Dibangun di atas FastAPI yang mendukung proses asinkron untuk performa tinggi.
 
-## 🛠️ Stack Teknologi
-- **Language**: Python 3.11/3.12
-- **AI Framework**: TensorFlow & Keras
-- **Web Framework**: FastAPI
-- **Data Science**: Pandas, NumPy, Scikit-learn, Joblib
-- **Server**: Uvicorn
-
-## 📂 Struktur Folder
+## 📂 Struktur Proyek
 ```text
 .
-├── main.py                         # Entry point API (FastAPI)
-├── diabeat_model_production.keras  # Trained Deep Learning Model
-├── scaler.pkl                      # Object Scaler (Preprocessing)
-├── requirements.txt                # Daftar library/dependensi
-├── .gitignore                      # File untuk mengabaikan venv/
-└── README.md                       # Dokumentasi proyek
+├── main.py                # Server API utama (FastAPI)
+├── baru/                  # Direktori penyimpanan aset model
+│   ├── diabeat_model_production(v1.2).keras
+│   └── scaler.pkl         # Objek normalisasi data
+├── requirements.txt       # Daftar dependensi Python
+├── API_DOCUMENTATION.md   # Panduan teknis penggunaan endpoint
+├── INSTALLATION.md        # Instruksi penyiapan lingkungan lokal
+└── .gitignore             # Konfigurasi pengabaian file Git
+```
+
+## 🛠️ Stack Teknologi
+- **Core**: Python 3.11+
+- **Machine Learning**: TensorFlow, Keras, Scikit-Learn
+- **API Framework**: FastAPI & Uvicorn
+- **Data Handling**: NumPy, Pandas, Joblib
+
+

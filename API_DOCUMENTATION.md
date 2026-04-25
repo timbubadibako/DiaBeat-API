@@ -1,97 +1,86 @@
-# 📖 Dokumentasi API DiaBeat
-Dokumentasi ini menjelaskan cara berinteraksi dengan layanan AI DiaBeat untuk melakukan prediksi risiko diabetes.
----
-## 🌐 Informasi Server
-* **Base URL:** `http://127.0.0.1:8000`
-* **Format Data:** `JSON`
-* **Metode Utama:** `POST`
----
-## 🛠️ Daftar Endpoint
+# 📖 Panduan Dokumentasi API
 
-### 1. Health Check
-Digunakan untuk memastikan server API berjalan dengan baik.
-* **URL:** `/`
-* **Method:** `GET`
-* **Response:**
-  ```json
-  {
-    "message": "DiaBeat AI API is Online!"
-  }
-  ```
+Panduan ini ditujukan bagi pengembang yang ingin mengintegrasikan layanan prediksi DiaBeat ke dalam aplikasi Frontend, Mobile, atau layanan pihak ketiga lainnya.
+
+## 🌐 Informasi Endpoint
+* **Base URL:** `http://localhost:8000`
+* **Format Pertukaran Data:** `JSON`
+* **Interactive Docs:** `/docs` (Swagger UI) atau `/redoc`
 
 ---
 
-### 2. Prediksi Risiko Diabetes
-Endpoint utama untuk mengirim data medis dan menerima hasil klasifikasi dari model Deep Learning.
+## 🛠️ Endpoint: Prediksi Risiko
 
-* **URL:** `/predict`
-* **Method:** `POST`
-* **Payload (JSON Body):**
+### POST `/predict`
+Mengirimkan data klinis pasien untuk mendapatkan hasil analisis risiko diabetes.
 
-| Field | Tipe | Deskripsi | Nilai Representasi |
-| :--- | :--- | :--- | :--- |
-| `Gender` | int | Jenis Kelamin | `0`: Female, `1`: Male |
-| `Age` | int | Usia | Angka bulat (contoh: 25) |
-| `Physical_Activity`| int | Tingkat Aktivitas | `0`: Low, `1`: Moderate, `2`: High |
-| `Smoking_Status` | int | Status Merokok | `0`: Never, `1`: Former, `2`: Current |
-| `Alcohol_Intake` | int | Konsumsi Alkohol | `0`: None, `1`: Occasional, `2`: Regular |
-| `Glucose` | float | Gula Darah | Angka desimal (mg/dL) |
-| `Blood_Pressure` | float | Tekanan Darah | Angka desimal (mmHg) |
-| `Skin_Thickness` | float | Tebal Kulit | Angka desimal (mm) |
-| `Insulin` | float | Kadar Insulin | Angka desimal (mu U/ml) |
-| `BMI` | float | Indeks Massa Tubuh| Angka desimal (kg/m²) |
-| `Cholesterol` | float | Kolesterol | Angka desimal (mg/dL) |
-| `Diabetes_Pedigree`| float | Riwayat Genetik | Angka desimal (skor 0.0 - 2.5) |
-| `Family_History` | int | Riwayat Keluarga | `0`: Tidak, `1`: Ya |
-| `Hypertension` | int | Hipertensi | `0`: Tidak, `1`: Ya |
+#### **Request Body**
+Gunakan format `features` dalam bentuk list angka. Pastikan urutan data sesuai dengan protokol input berikut:
 
----
-## 📥 Contoh Penggunaan (Request)
+**Urutan Fitur (Index 0-13):**
+1. Gender (1: L, 0: P) | 2. Age | 3. Physical Activity | 4. Smoking | 5. Alcohol | 6. Glucose | 7. Blood Pressure | 8. Skin Thickness | 9. Insulin | 10. BMI | 11. Cholesterol | 12. Pedigree | 13. Family History | 14. Hypertension
 
-**Request Body:**
+**Contoh Payload:**
 ```json
 {
-  "Gender": 1,
-  "Age": 45,
-  "Physical_Activity": 1,
-  "Smoking_Status": 1,
-  "Alcohol_Intake": 0,
-  "Glucose": 145.5,
-  "Blood_Pressure": 90,
-  "Skin_Thickness": 20,
-  "Insulin": 85,
-  "BMI": 28.4,
-  "Cholesterol": 210,
-  "Diabetes_Pedigree": 0.52,
-  "Family_History": 1,
-  "Hypertension": 0
+  "features": [1, 45, 1, 0, 0, 125.5, 80.0, 20.0, 85.0, 28.4, 190.0, 0.45, 1, 0]
+}
+```
+
+#### **Response Body**
+API akan mengembalikan klasifikasi risiko dan tingkat probabilitas keyakinan model.
+
+**Contoh Tanggapan Sukses:**
+```json
+{
+  "prediction": "Diabetic",
+  "probability": 0.89
 }
 ```
 
 ---
 
-## 📤 Contoh Tanggapan (Response)
-
-**Response Success (200 OK):**
-```json
-{
-  "status": "success",
-  "prediction": {
-    "risk_score": 82.45,
-    "is_diabetic": true,
-    "label": "Diabetic"
-  }
-}
+## ⚠️ Penanganan Error
+API akan mengembalikan status code `500` jika terjadi ketidaksesuaian jumlah fitur input (misal: mengirim kurang atau lebih dari 14 parameter).
 ```
-
-**Keterangan Response:**
-* `risk_score`: Persentase tingkat risiko (0.0 - 100.0).
-* `is_diabetic`: Boolean hasil klasifikasi (True jika risiko > 50%).
-* `label`: Kategori hasil prediksi dalam bentuk teks.
 
 ---
 
-## ⚠️ Error Handling
-Jika terjadi kesalahan, API akan mengirimkan kode status berikut:
-* `422 Unprocessable Entity`: Data JSON tidak lengkap atau tipe data salah.
-* `500 Internal Server Error`: Kegagalan pada sisi server atau model AI gagal memproses data.
+### **3. INSTALLATION.md**
+```text
+# 🛠️ Panduan Instalasi Proyek
+
+Ikuti langkah-langkah di bawah ini untuk menjalankan layanan DiaBeat API di lingkungan lokal Anda.
+
+### 1. Persiapan Repositori
+Clone proyek ini ke mesin lokal Anda menggunakan Git:
+```bash
+git clone [https://github.com/username/DiaBeat-API.git](https://github.com/username/DiaBeat-API.git)
+cd DiaBeat-API
+```
+
+### 2. Lingkungan Virtual (Virtual Environment)
+Disarankan menggunakan `venv` untuk menjaga isolasi dependensi:
+```bash
+# Membuat venv
+python -m venv venv
+
+# Aktivasi (Windows)
+.\venv\Scripts\activate
+
+# Aktivasi (Mac/Linux)
+source venv/bin/activate
+```
+
+### 3. Instalasi Dependensi
+Instal semua pustaka yang diperlukan (TensorFlow, FastAPI, dll.):
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Menjalankan Layanan
+Proyek ini telah dikonfigurasi untuk berjalan langsung melalui file utama:
+```bash
+python main.py
+```
+Setelah berjalan, akses **Swagger UI** di `http://localhost:8000/docs` untuk melakukan simulasi request secara interaktif.
