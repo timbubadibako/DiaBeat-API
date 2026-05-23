@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .env
 logs/
+# Secrets and Local Environment Configs
+.env
+.env.local
+.env.*.local

@@ -1,86 +1,73 @@
-# 📖 Panduan Dokumentasi API
+# 📖 Panduan Dokumentasi REST API
 
-Panduan ini ditujukan bagi pengembang yang ingin mengintegrasikan layanan prediksi DiaBeat ke dalam aplikasi Frontend, Mobile, atau layanan pihak ketiga lainnya.
+Panduan ini ditujukan bagi pengembang backend (Express.js) atau Frontend yang ingin mengintegrasikan layanan prediksi DiaBeat AI ke dalam aplikasi.
 
-## 🌐 Informasi Endpoint
-* **Base URL:** `http://localhost:8000`
+## 🔗 Tautan Navigasi Cepat
+* [Kembali ke Halaman Utama README](README.md)
+* [Lihat Panduan Instalasi Lokal](INSTALLATION.md)
+* **Live Server Sandbox:** [DiaBeat AI HF Production Docs](https://chivasy1-diabeat.hf.space/docs#/)
+
+## 🌐 Informasi Peladen
+* **Local Development Base URL:** `http://localhost:8000`
+* **Production Cloud Base URL:** `https://chivasy1-diabeat.hf.space`
 * **Format Pertukaran Data:** `JSON`
-* **Interactive Docs:** `/docs` (Swagger UI) atau `/redoc`
 
 ---
 
-## 🛠️ Endpoint: Prediksi Risiko
+## 🛠️ Spesifikasi Detail Endpoint
 
-### POST `/predict`
-Mengirimkan data klinis pasien untuk mendapatkan hasil analisis risiko diabetes.
+### 1. POST `/predict` (Skrining Risiko Diabetes)
+Mengirimkan array 14 elemen data fitur klinis pasien hasil pemetaan encoder backend untuk dianalisis oleh model ANN.
 
-#### **Request Body**
-Gunakan format `features` dalam bentuk list angka. Pastikan urutan data sesuai dengan protokol input berikut:
-
-**Urutan Fitur (Index 0-13):**
-1. Gender (1: L, 0: P) | 2. Age | 3. Physical Activity | 4. Smoking | 5. Alcohol | 6. Glucose | 7. Blood Pressure | 8. Skin Thickness | 9. Insulin | 10. BMI | 11. Cholesterol | 12. Pedigree | 13. Family History | 14. Hypertension
-
-**Contoh Payload:**
+#### **Request Body (`JSON`)**
 ```json
 {
-  "features": [1, 45, 1, 0, 0, 125.5, 80.0, 20.0, 85.0, 28.4, 190.0, 0.45, 1, 0]
+  "features": [1, 45, 1, 0, 1, 110, 80, 20, 85, 27.5, 200, 0.627, 1, 0],
+  "context": "Pasien mengeluhkan sering merasa haus dan frekuensi buang air kecil meningkat tajam akhir-akhir ini."
 }
+
 ```
 
-#### **Response Body**
-API akan mengembalikan klasifikasi risiko dan tingkat probabilitas keyakinan model.
+*Note: Atribut `context` bersifat opsional dan berguna untuk memberikan instruksi keluhan tambahan ke generator rekomendasi AI.*
 
-**Contoh Tanggapan Sukses:**
+#### **Response Body (`JSON`)**
+
+*Output dijamin patuh dengan aturan schema validator Joi.*
+
 ```json
 {
-  "prediction": "Diabetic",
-  "probability": 0.89
+  "prediction": "Non-diabetic",
+  "probability": 0.2314,
+  "recommendation": "Pertahankan pola makan tinggi serat saat ini dan lakukan olahraga kardio ringan secara teratur 3 kali seminggu."
 }
+
+```
+
+### 2. POST `/consultation` (Asisten Chatbot AI Medis)
+
+Endpoint interaktif khusus tanya-jawab seputar tindakan preventif bahaya diabetes dan regulasi pola hidup sehat.
+
+#### **Request Body (`JSON`)**
+
+```json
+{
+  "message": "Bagaimana cara mengatur pola makan yang aman jika saya memiliki riwayat keturunan diabetes?"
+}
+
+```
+
+#### **Response Body (`JSON`)**
+
+```json
+{
+  "status_code": 200,
+  "ai_response": "Fokus pada makanan berindeks glikemik rendah seperti karbohidrat kompleks... [Edukasi Medis]... Catatan: Layanan ini merupakan media edukasi dini, tetap konsultasikan dengan fasilitas medis resmi."
+}
+
 ```
 
 ---
 
-## ⚠️ Penanganan Error
-API akan mengembalikan status code `500` jika terjadi ketidaksesuaian jumlah fitur input (misal: mengirim kurang atau lebih dari 14 parameter).
-```
+## ⚠️ Penanganan Galat (Error Handling)
 
----
-
-### **3. INSTALLATION.md**
-```text
-# 🛠️ Panduan Instalasi Proyek
-
-Ikuti langkah-langkah di bawah ini untuk menjalankan layanan DiaBeat API di lingkungan lokal Anda.
-
-### 1. Persiapan Repositori
-Clone proyek ini ke mesin lokal Anda menggunakan Git:
-```bash
-git clone [https://github.com/username/DiaBeat-API.git](https://github.com/username/DiaBeat-API.git)
-cd DiaBeat-API
-```
-
-### 2. Lingkungan Virtual (Virtual Environment)
-Disarankan menggunakan `venv` untuk menjaga isolasi dependensi:
-```bash
-# Membuat venv
-python -m venv venv
-
-# Aktivasi (Windows)
-.\venv\Scripts\activate
-
-# Aktivasi (Mac/Linux)
-source venv/bin/activate
-```
-
-### 3. Instalasi Dependensi
-Instal semua pustaka yang diperlukan (TensorFlow, FastAPI, dll.):
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Menjalankan Layanan
-Proyek ini telah dikonfigurasi untuk berjalan langsung melalui file utama:
-```bash
-python main.py
-```
-Setelah berjalan, akses **Swagger UI** di `http://localhost:8000/docs` untuk melakukan simulasi request secara interaktif.
+Server akan melemparkan kode status `500 Internal Server Error` jika tipe data fitur di dalam array tidak selaras atau jumlah indeks elemen kurang dari 14 parameter standar operasional model.

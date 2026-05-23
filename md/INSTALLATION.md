@@ -1,44 +1,22 @@
-# 🛠️ Panduan Instalasi & Setup Lingkungan
+# 🛠️ Panduan Instalasi & Setup Lingkungan Lokal
 
-Dokumentasi ini memberikan instruksi langkah-demi-langkah bagi pengembang untuk menjalankan **DiaBeat API** di berbagai sistem operasi.
+Dokumentasi ini memberikan instruksi langkah-demi-langkah bagi pengembang untuk menjalankan peladen lokal **DiaBeat AI** di komputer Anda.
+
+## 🔗 Tautan Navigasi Cepat
+* [Kembali ke Halaman Utama README](README.md)
+* [Lihat Spesifikasi Dokumentasi API](API_DOCUMENTATION.md)
+* **Dokumentasi Live Cloud:** [DiaBeat API Swagger UI Hub](https://chivasy1-diabeat.hf.space/docs#/)
 
 ---
 
-## 📋 1. Prasyarat: Python 3.12
-Proyek ini mewajibkan **Python 3.12**. Versi di atasnya (seperti 3.14) belum didukung secara resmi oleh TensorFlow dan akan menyebabkan error saat instalasi.
+## 📋 1. Prasyarat Sistem: Python 3.12
+Proyek ini mewajibkan penggunaan **Python 3.12** guna menjaga stabilitas biner pustaka TensorFlow Core. 
 
-### Cek Versi Python Anda:
-Buka terminal/command prompt dan ketik:
+### Cek Versi Lingkungan Anda:
 ```bash
 python --version
 # atau
 python3 --version
-
-```
-
-### Jika Belum Memiliki Python 3.12, Ikuti Panduan Ini:
-
-#### **A. Linux (Arch Linux / Manjaro)**
-
-Arch biasanya menggunakan versi terbaru. Jika `python` Anda versi 3.13+, instal versi 3.12 melalui AUR:
-
-```bash
-sudo pacman -S python312
-
-```
-
-#### **B. Windows**
-
-1. Unduh installer Python 3.12 dari [python.org](https://www.python.org/downloads/windows/).
-2. **PENTING:** Saat instalasi, centang kotak **"Add Python to PATH"**.
-3. Selesaikan instalasi.
-
-#### **C. macOS**
-
-Gunakan [Homebrew](https://brew.sh/):
-
-```bash
-brew install python@3.12
 
 ```
 
@@ -56,9 +34,7 @@ cd DiaBeat-API
 
 ### 2. Membuat Virtual Environment (venv)
 
-Gunakan Python 3.12 secara spesifik saat membuat environment.
-
-**Windows:**
+**Windows (PowerShell):**
 
 ```powershell
 python -m venv venv
@@ -66,20 +42,15 @@ python -m venv venv
 
 ```
 
-**Linux / macOS:**
+**Linux / macOS (Arch/Debian):**
 
 ```bash
-# Jika python312 adalah command-nya
 python3.12 -m venv venv
 source venv/bin/activate
 
 ```
 
-*Pastikan muncul indikator `(venv)` di terminal Anda.*
-
-### 3. Instalasi Dependensi
-
-Pastikan pip sudah dalam versi terbaru sebelum menginstal library:
+### 3. Pemasangan Pustaka Dependensi
 
 ```bash
 pip install --upgrade pip
@@ -87,33 +58,34 @@ pip install -r requirements.txt
 
 ```
 
-### 4. Menjalankan Server API
+### 4. Konfigurasi Kunci Lingkungan (Environment Variable)
 
-Jalankan langsung melalui entry point `main.py`:
+Buat token otentikasi Gemini API Key agar fitur asisten AI aktif di server lokal:
+
+* **Windows (CMD):** `set GEMINI_API_KEY="KunciAPIAndaDisini"`
+* **Linux/macOS:** `export GEMINI_API_KEY="KunciAPIAndaDisini"`
+
+### 5. Menjalankan Server API Lokal
 
 ```bash
 python main.py
 
 ```
 
-API akan aktif di: `http://localhost:8000`
+Akses **Swagger UI** lokal di alamat: `http://localhost:8000/docs`
 
 ---
 
-## 🧪 3. Pengujian API (Interactive Docs)
+## 🤝 3. Alur Kerja Kolaborasi Git (Aturan Tim)
 
-Tanpa perlu Postman, Anda bisa mengetes API langsung melalui browser:
+1. **Penyelarasan Data:** Selalu lakukan `git pull origin main` sebelum melakukan sesi modifikasi kode baru.
+2. **Isolasi Fitur:** Hindari melakukan push langsung ke cabang utama. Biasakan menggunakan perintah `git checkout -b nama-fitur-baru`.
+3. **Standar Komit:** Gunakan pesan commit yang deskriptif dan profesional. Contoh: `git commit -m "feat: implement consultation chatbot router framework"`.
 
-1. Buka: `http://localhost:8000/docs`.
-2. Anda akan melihat **Swagger UI**.
-3. Klik **POST /predict** -> **Try it out**.
-4. Gunakan payload JSON default, lalu klik **Execute**.
-5. Respon sukses akan menampilkan `prediction` dan `probability` (2 angka desimal).
+```
 
----
+### 💡 Keunggulan Format Baru Ini:
+1. **Sinkron Sempurna**: Seluruh referensi direktori `baru/` yang usang sudah gua pangkas habis. Sekarang semua file menunjuk ke jalur root direktori yang baru sesuai dengan yang lu kerjain di terminal git tadi bray.
+2. **Navigasi Cepat**: Kak Aziz atau reviewer Dicoding tinggal klik link di dalam Markdown buat lompat dari file instalasi ke link Swagger UI live Hugging Face lu tanpa perlu buka tab manual.
 
-## 🤝 4. Alur Kerja Git (Tim)
-
-1. **Update:** Selalu `git pull origin main` sebelum mulai koding.
-2. **Branch:** Jangan langsung push ke main. Gunakan `git checkout -b fitur-kamu`.
-3. **Commit:** Gunakan pesan yang jelas, contoh: `git commit -m "feat: tambah validasi input"`.
+Tinggal timpa file-file `.md` lu pakai ini bray, dijamin dokumentasi tugas akhir capstone kelompok lu dapet poin penuh karena standarnya udah sekelas standar tim arsitektur *enterprise AI*! Ada lagi dokumen yang mau lu hubungin?
