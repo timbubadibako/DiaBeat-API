@@ -9,3 +9,4 @@ python-multipart
 gunicorn
 google-generativeai
 python-dotenv
+tensorboard

@@ -10,10 +10,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional
 import google.generativeai as genai
-from dotenv import load_dotenv
+
+from fastapi.middleware.wsgi import WSGIMiddleware
+from tensorboard.backend import application as tb_app
 
 # --- TRICK CERDAS FAIL-SAFE DOTENV UNTUK MULTI-ENVIRONMENT CONTROL ---
 try:
+    # Membungkus import di dalam try agar jika library tidak ada, cloud tidak crash bray
     from dotenv import load_dotenv
     load_dotenv()
     print("[INFO] Lingkungan Lokal: File .env sukses dimuat ke sistem.")
@@ -28,7 +31,7 @@ app = FastAPI(
     Peladen API Produksi Terintegrasi Kustom Deep Learning ANN & Generative AI.
     
     ### 📊 Pemantauan Grafik & Manajemen Model:
-    * **TensorBoard Dashboard:** Dapat diakses secara live via tab bawaan di Hugging Face Spaces.
+    * **TensorBoard Dashboard:** Dapat diakses secara live via sub-endpoint `/tensorboard/`.
     * **Model Core Engine Active:** v1.2.2 (Dengan Logits Optimization & Fail-Safe Auto Fallback).
     """,
     version="1.2.2"
@@ -110,11 +113,6 @@ class ChatbotConsultationInput(BaseModel):
             }
         }
 
-class ChatbotConsultationResponse(BaseModel):
-    """Skema tanggapan luaran dari asisten AI klinis."""
-    status_code: int
-    ai_response: str
-
 
 # =====================================================================
 # INTERNAL ENGINE LOGIC (MATHEMATICS & LLM INFERENCE)
@@ -130,7 +128,6 @@ def generate_health_advice(prediction_label, probability, patient_context):
         return "Segera konsultasikan hasil skrining awal ini dengan dokter spesialis terdekat untuk evaluasi medis menyeluruh."
         
     try:
-        # Menggunakan model generasi terbaru gemini-2.5-flash yang super cepat dan stabil
         gemini_model = genai.GenerativeModel('gemini-2.5-flash')
         complaint_text = patient_context if patient_context else "Tidak ada keluhan spesifik yang dilaporkan oleh pasien."
         
@@ -165,9 +162,25 @@ def read_root():
         "status": "Online",
         "active_engine": ACTIVE_MODEL_VERSION,
         "gen_ai_status": "Connected" if GOOGLE_API_KEY else "Disconnected",
-        "tensorboard_logs": "Detected (Sync Active via HF Spaces Hub)"
+        "tensorboard_logs": "Detected (Sync Active via WSGI Port)"
     }
 
+try:
+    # Mengarahkan mesin TensorBoard untuk membaca folder log lokal lu
+    tb_wsgi_app = tb_app.standard_tensorboard_wsgi(logdir="20260523-164049") 
+    # Mencangkokkan aplikasi WSGI TensorBoard ke dalam routing FastAPI
+    app.mount("/tensorboard", WSGIMiddleware(tb_wsgi_app))
+    print("[SUCCESS] Dashboard TensorBoard berhasil dicangkok ke jalur /tensorboard")
+except Exception as e:
+    print(f"[WARNING] Gagal memuat instansiasi TensorBoard internal: {str(e)}")
+
+from fastapi.responses import RedirectResponse
+
+# ENDPOINT PENGALIH OTOMATIS ANTI-404 BRAY
+@app.get("/tensorboard", include_in_schema=False)
+def redirect_tensorboard():
+    """Mengalihkan trafik tanpa slash otomatis ke /tensorboard/ agar tidak terkena 404."""
+    return RedirectResponse(url="/tensorboard/")
 
 @app.post("/predict", response_model=PredictionResponse, status_code=status.HTTP_200_OK, tags=["Analisis Prediksi"])
 def predict_diabetes_risk(data: PatientDataInput):
@@ -193,10 +206,8 @@ def predict_diabetes_risk(data: PatientDataInput):
         
         # 4. Penjinakan Nilai Output Berdasarkan Versi Mesin yang Aktif
         if ACTIVE_MODEL_VERSION == "v1.2.2":
-            # Model v1.2.2 bertipe logits murni, wajib dilewatkan ke rumus sigmoid manual bray!
             probability_value = float(manual_sigmoid(prediction[0][0]))
         else:
-            # Model v1.2 lama sudah memiliki lapisan aktivasi internal di layer keluaran
             probability_value = float(prediction[0][0])
             
         # 5. Pembulatan Presisi Desimal (Format 4 angka di belakang koma)
@@ -234,7 +245,6 @@ def medical_chatbot_consultation(user_input: ChatbotConsultationInput):
         )
 
     try:
-        # KUNCI UTAMA: PENAMBAHAN ATURAN BATASAN KONTEKS (GUARDRAIL KETAT)
         system_instruction = (
             "Anda adalah DiaBeat Asisten AI Medis, seorang dokter spesialis penyakit dalam dan endokrinologi yang taktis dan profesional.\n\n"
             "BATASAN KONTEKS MUTLAK:\n"

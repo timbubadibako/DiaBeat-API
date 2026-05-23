@@ -1,8 +1,8 @@
 # 🩺 DiaBeat AI: REST API Core Service (Version 1.2.2)
 
-[![Deployment](https://img.shields.io/badge/Deployment-Hugging%20Face%20Spaces-FFD21E.svg)](https://huggingface.co/spaces)
-[![Framework](https://img.shields.io/badge/Framework-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
-[![Engine](https://img.shields.io/badge/Engine-TensorFlow%202.x-FF6F00.svg)](https://www.tensorflow.org/)
+[![Deployment Status](https://img.shields.io/badge/Deployment-Hugging%20Face%20Spaces-FFD21E.svg?style=for-the-badge&logo=huggingface)](https://chivasy1-diabeat-api.hf.space/docs)
+[![Framework Status](https://img.shields.io/badge/Framework-FastAPI-009688.svg?style=for-the-badge&logo=fastapi)](https://chivasy1-diabeat-api.hf.space/docs)
+[![Engine Status](https://img.shields.io/badge/Engine-TensorFlow%202.x-FF6F00.svg?style=for-the-badge&logo=tensorflow)](https://chivasy1-diabeat-api.hf.space/docs)
 
 Ini adalah RESTful API sistem **DiaBeat AI** berbasis Kecerdasan Buatan (AI) versi `1.2.2` yang dirancang untuk mendeteksi risiko diabetes secara dini. Proyek ini mengintegrasikan model **Deep Learning** (TensorFlow Functional API) dengan **FastAPI** serta LLM Generative AI untuk asisten konsultasi pintar.
 
