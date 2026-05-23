@@ -3,30 +3,38 @@ from pydantic import BaseModel, Field
 import tensorflow as tf
 import numpy as np
 import joblib
+import logging
+import os
 
-# 1. Inisialisasi FastAPI dengan Metadata
+# 1. PERBAIKAN LOGGING: Menghapus spasi dan karakter yang bikin ValueError
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - [%(levelname)s] - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logger = logging.getLogger(__name__)
+
 app = FastAPI(
     title="DiaBeat AI API",
-    description="API Prediksi Diabetes menggunakan Deep Learning (Functional API)",
-    version="1.2.1"
+    description="API Prediksi Diabetes menggunakan Deep Learning",
+    version="1.2.3"
 )
 
 # 2. Load Model dan Scaler
-# Path directory tetap sesuai permintaanmu
-try:
-    model = tf.keras.models.load_model("baru/diabeat_model_production(v1.2).keras")
-    scaler = joblib.load("baru/scaler.pkl")
-    print("[SUCCESS] Model dan Scaler berhasil dimuat!")
-except Exception as e:
-    print(f"[ERROR] Gagal memuat file: {e}")
+MODEL_PATH = "baru/diabeat_model_production(v1.2).keras"
+SCALER_PATH = "baru/scaler.pkl"
 
-# 3. Struktur Data Input (Format List)
+try:
+    model = tf.keras.models.load_model(MODEL_PATH)
+    scaler = joblib.load(SCALER_PATH)
+    logger.info("--- [STATUS] Model dan Scaler berhasil dimuat! ---")
+except Exception as e:
+    logger.error(f"Gagal memuat file: {e}")
+
 class PatientData(BaseModel):
-    # Field example ini yang bikin di Swagger UI /docs muncul angkanya otomatis bray
     features: list = Field(
         ..., 
-        example=[1, 45, 1, 0, 0, 125.5, 80.0, 20.0, 85.0, 28.4, 190.0, 0.45, 1, 0],
-        description="List angka fitur (Urutan: Gender, Age, Activity, Smoking, Alcohol, Glucose, BP, Thickness, Insulin, BMI, Chol, Pedigree, Family, Hypertension)"
+        example=[1, 45, 1, 0, 0, 125.5, 80.0, 20.0, 85.0, 28.4, 190.0, 0.45, 1, 0]
     )
 
 @app.get("/", tags=["Status"])
@@ -36,30 +44,35 @@ def read_root():
 @app.post("/predict", tags=["Prediction"])
 def predict(data: PatientData):
     try:
-        # Konversi input list ke format yang dipahami model (2D Array)
-        input_features = np.array([data.features])
-
-        # 1. Scaling data (Wajib!)
-        # Jika error di sini, berarti jumlah angka di list 'features' nggak sama dengan pas training
-        scaled_features = scaler.transform(input_features)
-
-        # 2. Prediksi (verbose=0 biar terminal anteng)
-        prediction = model.predict(scaled_features, verbose=0)
-        probability = float(prediction[0][0])
+        # Konversi ke array 2D dengan float32 agar sinkron dengan TensorFlow
+        input_features = np.array([data.features], dtype=np.float32)
         
-        # 3. Output JSON sesuai permintaan Backend
+        # 1. Scaling
+        scaled_features = scaler.transform(input_features)
+        logger.info(f"Inference request received. Scaled features: {scaled_features.tolist()}")
+
+        # 2. Prediksi Menggunakan __call__ (Lebih presisi untuk nilai ekstrem)
+        # Kita pakai model(x) bukan model.predict(x) buat dapet nilai mentah yang lebih jeli
+        prediction = model(scaled_features, training=False)
+        raw_probability = float(prediction.numpy()[0][0])
+        
+        # 3. FORMATTING: Trik agar tetap muncul 1.00 atau 0.00 di JSON
+        # Kita kembalikan sebagai STRING agar .00 nya tidak dipangkas sistem JSON
+        formatted_prob = "{:.2f}".format(raw_probability)
+        
+        label = "Diabetic" if raw_probability >= 0.5 else "Non-diabetic"
+        logger.info(f"Result: {label} | Prob: {formatted_prob}")
+
         return {
-            "prediction": "Diabetic" if probability >= 0.5 else "Non-diabetic",
-            "probability": round(probability, 2)
+            "prediction": label,
+            "probability": formatted_prob # Ini akan jadi "1.00" atau "0.00"
         }
         
     except Exception as e:
-        # Kalau jumlah fitur beda, bakal ketauan di sini
+        logger.error(f"Prediction error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Inference Error: {str(e)}")
 
-# 4. Menjalankan Server (Gunakan: python main.py)
 if __name__ == "__main__":
     import uvicorn
-    print("\n[INFO] Menjalankan Server DiaBeat AI...")
-    print("[INFO] Buka dokumentasi untuk test: http://localhost:8000/docs\n")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
